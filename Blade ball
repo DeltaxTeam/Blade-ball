@@ -1,0 +1,79 @@
+local player = game.Players.LocalPlayer
+local mouse = player:GetMouse()
+local guiEnabled = false
+local autoParryEnabled = false
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "MiniGUI"
+gui.Parent = game.CoreGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 150, 0, 100)
+frame.Position = UDim2.new(0, 10, 0, 10)
+frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+frame.Parent = gui
+
+local autoParryButton = Instance.new("TextButton")
+autoParryButton.Text = "Auto Parry: Off"
+autoParryButton.Size = UDim2.new(0, 120, 0, 40)
+autoParryButton.Position = UDim2.new(0, 15, 0, 20)
+autoParryButton.Parent = frame
+
+local switch = Instance.new("TextButton")
+switch.Text = "Off"
+switch.Size = UDim2.new(0, 20, 0, 20)
+switch.Position = UDim2.new(0, 130, 0, 65)
+switch.Parent = frame
+
+local function toggleAutoParry()
+    autoParryEnabled = not autoParryEnabled
+    autoParryButton.Text = "Auto Parry: " .. (autoParryEnabled and "On" or "Off")
+end
+
+local function toggleSwitch()
+    switch.Text = (switch.Text == "Off") and "On" or "Off"
+end
+
+autoParryButton.MouseButton1Click:Connect(toggleAutoParry)
+switch.MouseButton1Click:Connect(toggleSwitch)
+
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+frame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+while true do
+    wait()
+    if autoParryEnabled then
+        -- Add your auto parry logic here
+        print("Auto Parrying...")
+    end
+end
